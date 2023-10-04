@@ -1,0 +1,126 @@
+name: cpp-cmake-mingw-prebuilt-release-actions-workflow
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'c*'
+jobs:
+  build:
+    strategy:
+      matrix:
+        on: [ ubuntu-latest, windows-latest ] # , macos-latest
+    runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
+    env:
+      libraryName: cuda-samples
+      tagName: v12.2
+    steps:
+      - if: ${{ matrix.on == 'ubuntu-latest' }}
+        run: |
+          sudo rm /var/lib/apt/lists/lock && \
+          sudo apt-get update -y && \
+          sudo apt-get upgrade -y && \
+          sudo apt-get -y --no-install-recommends install \
+          zip \
+          unzip 
+
+      - name: Add msbuild to PATH
+        if: ${{ matrix.on == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1.12.1
+        with:
+          arch: x64
+          
+        # uses: microsoft/setup-msbuild@v1.1.3
+        # with:
+        #   vs-version: '[17.0,18.0)'
+        #   msbuild-architecture: x64
+
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        if: ${{ matrix.on != 'windows-latest' }}
+        id: cuda-toolkit-non-windows
+        with:
+          cuda: '12.2.0'
+          method: "network"
+          sub-packages: '["nvcc", "nvtx", "cudart"]'
+          
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        if: ${{ matrix.on == 'windows-latest' }}
+        id: cuda-toolkit-windows
+        with:
+          cuda: '12.2.0'
+          method: "network"
+          sub-packages: '["nvcc", "nvtx", "cudart", "visual_studio_integration"]'
+
+      - if: ${{ matrix.on != 'windows-latest' }}
+        run: |
+          echo "Installed cuda version is: ${{steps.cuda-toolkit-non-windows.outputs.cuda}}" && echo "Cuda install location: ${{steps.cuda-toolkit-non-windows.outputs.CUDA_PATH}}"
+      
+      - if: ${{ matrix.on == 'windows-latest' }}
+        run: |
+          echo "Installed cuda version is: ${{steps.cuda-toolkit-windows.outputs.cuda}}" && echo "Cuda install location: ${{steps.cuda-toolkit-windows.outputs.CUDA_PATH}}"
+          
+      - name: nvcc version
+        run: nvcc --version
+        
+      - uses: actions/checkout@v4
+        with:
+          repository: NVIDIA/cuda-samples
+          ref: ${{ env.tagName }}
+          path: ${{ env.libraryName }}
+          submodules: true
+          
+      - if: ${{ matrix.on == 'ubuntu-latest' }}
+        run: make || ls
+        working-directory: ${{ env.libraryName }}/Samples/1_Utilities/deviceQuery
+        
+      - if: ${{ matrix.on == 'windows-latest' }}
+        shell: cmd
+        run: msbuild deviceQuery_vs2022.sln -target:deviceQuery -property:Configuration=Release && dir
+        working-directory: ${{ env.libraryName }}/Samples/1_Utilities/deviceQuery
+        
+      - if: ${{ matrix.on == 'ubuntu-latest' }}
+        run: ./deviceQuery
+        continue-on-error: true
+        working-directory: ${{ env.libraryName }}/Samples/1_Utilities/deviceQuery
+        
+      - if: ${{ matrix.on == 'windows-latest' }}
+        shell: cmd
+        run: .\deviceQuery.exe
+        continue-on-error: true
+        working-directory: ${{ env.libraryName }}/bin/win64/Release
+        
+      - name: Archive Release
+        if: ${{ matrix.on == 'ubuntu-latest' }}
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          path: |
+            deviceQuery
+          directory: "${{ env.libraryName }}/Samples/1_Utilities/deviceQuery"
+          filename: "deviceQuery-ubuntu-22.04-${{ github.ref_name }}.zip"
+          
+      - name: Archive Release
+        if: ${{ matrix.on == 'windows-latest' }}
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          path: |
+            deviceQuery.exe
+          directory: "${{ env.libraryName }}/bin/win64/Release"
+          filename: "deviceQuery-windows-server-2022-${{ github.ref_name }}.zip"
+          
+      - name: Release prebuilt
+        if: ${{ matrix.on == 'ubuntu-latest' }}
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ env.libraryName }}/Samples/1_Utilities/deviceQuery/deviceQuery-ubuntu-22.04-${{ github.ref_name }}.zip"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release prebuilt
+        if: ${{ matrix.on == 'windows-latest' }}
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ env.libraryName }}/bin/win64/Release/deviceQuery-windows-server-2022-${{ github.ref_name }}.zip"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
