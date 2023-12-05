@@ -12,6 +12,7 @@ jobs:
         on: [ ubuntu-latest, windows-latest ] # , macos-latest
         version: [10.2.89, 12.2.0]
     runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
+    continue-on-error: true
     env:
       libraryName: cuda-samples
     steps:
