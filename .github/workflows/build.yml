@@ -10,10 +10,10 @@ jobs:
     strategy:
       matrix:
         on: [ ubuntu-latest, windows-latest ] # , macos-latest
+        version: [10.0, 12.2.0]
     runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
     env:
       libraryName: cuda-samples
-      tagName: v12.2
     steps:
       - if: ${{ matrix.on == 'ubuntu-latest' }}
         run: |
@@ -39,7 +39,7 @@ jobs:
         if: ${{ matrix.on != 'windows-latest' }}
         id: cuda-toolkit-non-windows
         with:
-          cuda: '12.2.0'
+          cuda: ${{ matrix.version }}
           method: "network"
           sub-packages: '["nvcc", "nvtx", "cudart"]'
           
@@ -47,7 +47,7 @@ jobs:
         if: ${{ matrix.on == 'windows-latest' }}
         id: cuda-toolkit-windows
         with:
-          cuda: '12.2.0'
+          cuda: ${{ matrix.version }}
           method: "network"
           sub-packages: '["nvcc", "nvtx", "cudart", "visual_studio_integration"]'
 
