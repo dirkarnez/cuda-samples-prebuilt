@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         on: [ ubuntu-latest, windows-latest ] # , macos-latest
-        version: [10.0, 12.2.0]
+        version: [11.1.0, 12.2.0]
     runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
     env:
       libraryName: cuda-samples
