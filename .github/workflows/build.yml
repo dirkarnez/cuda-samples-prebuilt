@@ -41,7 +41,6 @@ jobs:
         id: cuda-toolkit-non-windows
         with:
           cuda: ${{ matrix.version }}
-          method: "network"
           sub-packages: '["nvcc", "nvtx", "cudart"]'
           
       - uses: Jimver/cuda-toolkit@v0.2.16
@@ -49,7 +48,6 @@ jobs:
         id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.version }}
-          method: "network"
           sub-packages: '["nvcc", "nvtx", "cudart", "visual_studio_integration"]'
 
       - if: ${{ matrix.on != 'windows-2022' }}
