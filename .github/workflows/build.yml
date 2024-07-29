@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         on: [ ubuntu-latest, windows-latest ] # , macos-latest
-        version: [10.2.89, 12.2.0]
+        version: [12.5.0]
     runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
     continue-on-error: true
     env:
@@ -36,7 +36,7 @@ jobs:
         #   vs-version: '[17.0,18.0)'
         #   msbuild-architecture: x64
 
-      - uses: Jimver/cuda-toolkit@v0.2.11
+      - uses: Jimver/cuda-toolkit@v0.2.16
         if: ${{ matrix.on != 'windows-latest' }}
         id: cuda-toolkit-non-windows
         with:
@@ -44,7 +44,7 @@ jobs:
           method: "network"
           sub-packages: '["nvcc", "nvtx", "cudart"]'
           
-      - uses: Jimver/cuda-toolkit@v0.2.11
+      - uses: Jimver/cuda-toolkit@v0.2.16
         if: ${{ matrix.on == 'windows-latest' }}
         id: cuda-toolkit-windows
         with:
