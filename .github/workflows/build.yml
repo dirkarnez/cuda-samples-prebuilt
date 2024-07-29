@@ -35,7 +35,7 @@ jobs:
         if: ${{ matrix.on == 'windows-2019' }}
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: '[14.3)'
+          vs-version: '[14.3,14.4)'
           msbuild-architecture: x64
 
       - uses: Jimver/cuda-toolkit@v0.2.16
