@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        on: [ ubuntu-22.04, windows-2022 ] # , macos-latest
+        on: [ ubuntu-22.04, windows-2019 ] # , macos-latest, windows-2022 not working for Jimver/cuda-toolkit@v0.2.16 at the moment
         version: [12.5.0]
     runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
     continue-on-error: true
@@ -26,7 +26,7 @@ jobs:
           unzip 
 
       - name: Add msbuild to PATH
-        if: ${{ matrix.on == 'windows-2022' }}
+        if: ${{ matrix.on == 'windows-2019' }}
         uses: ilammy/msvc-dev-cmd@v1.12.1
         with:
           arch: x64
@@ -37,7 +37,7 @@ jobs:
         #   msbuild-architecture: x64
 
       - uses: Jimver/cuda-toolkit@v0.2.16
-        if: ${{ matrix.on != 'windows-2022' }}
+        if: ${{ matrix.on != 'windows-2019' }}
         id: cuda-toolkit-non-windows
         with:
           cuda: ${{ matrix.version }}
@@ -45,7 +45,7 @@ jobs:
           sub-packages: '["nvcc", "nvtx", "cudart"]'
           
       - uses: Jimver/cuda-toolkit@v0.2.16
-        if: ${{ matrix.on == 'windows-2022' }}
+        if: ${{ matrix.on == 'windows-2019' }}
         id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.version }}
@@ -53,11 +53,11 @@ jobs:
           use-github-cache: false
           sub-packages: '["nvcc", "nvtx", "cudart", "visual_studio_integration"]'
 
-      - if: ${{ matrix.on != 'windows-2022' }}
+      - if: ${{ matrix.on != 'windows-2019' }}
         run: |
           echo "Installed cuda version is: ${{steps.cuda-toolkit-non-windows.outputs.cuda}}" && echo "Cuda install location: ${{steps.cuda-toolkit-non-windows.outputs.CUDA_PATH}}"
       
-      - if: ${{ matrix.on == 'windows-2022' }}
+      - if: ${{ matrix.on == 'windows-2019' }}
         run: |
           echo "Installed cuda version is: ${{steps.cuda-toolkit-windows.outputs.cuda}}" && echo "Cuda install location: ${{steps.cuda-toolkit-windows.outputs.CUDA_PATH}}"
           
@@ -75,7 +75,7 @@ jobs:
         run: make || ls
         working-directory: ${{ env.libraryName }}/Samples/1_Utilities/deviceQuery
         
-      - if: ${{ matrix.on == 'windows-2022' }}
+      - if: ${{ matrix.on == 'windows-2019' }}
         shell: cmd
         run: msbuild deviceQuery_vs2022.sln -target:deviceQuery -property:Configuration=Release && dir
         working-directory: ${{ env.libraryName }}/Samples/1_Utilities/deviceQuery
@@ -85,7 +85,7 @@ jobs:
         continue-on-error: true
         working-directory: ${{ env.libraryName }}/Samples/1_Utilities/deviceQuery
         
-      - if: ${{ matrix.on == 'windows-2022' }}
+      - if: ${{ matrix.on == 'windows-2019' }}
         shell: cmd
         run: .\deviceQuery.exe
         continue-on-error: true
@@ -102,7 +102,7 @@ jobs:
           filename: "deviceQuery-ubuntu-22.04-${{ github.ref_name }}.zip"
           
       - name: Archive Release
-        if: ${{ matrix.on == 'windows-2022' }}
+        if: ${{ matrix.on == 'windows-2019' }}
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
@@ -120,7 +120,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release prebuilt
-        if: ${{ matrix.on == 'windows-2022' }}
+        if: ${{ matrix.on == 'windows-2019' }}
         uses: ncipollo/release-action@v1
         with:
           artifacts: "${{ env.libraryName }}/bin/win64/Release/deviceQuery-windows-server-2022-${{ github.ref_name }}.zip"
