@@ -49,6 +49,8 @@ jobs:
         id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.version }}
+          use-local-cache: false
+          use-github-cache: false
           sub-packages: '["nvcc", "nvtx", "cudart", "visual_studio_integration"]'
 
       - if: ${{ matrix.on != 'windows-2022' }}
