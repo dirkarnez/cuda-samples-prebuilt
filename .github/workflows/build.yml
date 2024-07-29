@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         on: [ ubuntu-22.04, windows-2022 ] # , macos-latest, windows-2022 not working for Jimver/cuda-toolkit@v0.2.16 at the moment
-        version: [12.2.0]
+        version: [12.5.0]
     runs-on: ${{ matrix.on }} # ubuntu-latest currently equals to ubuntu 22.04
     continue-on-error: true
     env:
@@ -59,10 +59,9 @@ jobs:
         id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.version }}
-          use-local-cache: false
-          use-github-cache: false
           sub-packages: '["nvcc", "nvtx", "cudart", "visual_studio_integration"]'
-          
+        # use-local-cache: false
+        # use-github-cache: false
         # sub-packages: '["nvcc", "visual_studio_integration", "cudart", "cublas", "cublas_dev", "thrust"]'
           
 
