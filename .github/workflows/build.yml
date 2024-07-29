@@ -25,12 +25,12 @@ jobs:
           zip \
           unzip 
 
-      - name: Add msbuild to PATH
-        if: ${{ matrix.on == 'windows-2019' }}
-        uses: ilammy/msvc-dev-cmd@v1.12.1
-        with:
-          arch: x64
-          toolset: 14.3
+      # - name: Add msbuild to PATH
+      #   if: ${{ matrix.on == 'windows-2019' }}
+      #   uses: ilammy/msvc-dev-cmd@v1.12.1
+      #   with:
+      #     arch: x64
+      #     toolset: 14.3
           
       # - name: Add msbuild to PATH
       #   if: ${{ matrix.on == 'windows-2019' }}
