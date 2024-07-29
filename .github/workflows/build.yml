@@ -25,18 +25,19 @@ jobs:
           zip \
           unzip 
 
-      # - name: Add msbuild to PATH
-      #   if: ${{ matrix.on == 'windows-2019' }}
-      #   uses: ilammy/msvc-dev-cmd@v1.12.1
-      #   with:
-      #     arch: x64
-          
       - name: Add msbuild to PATH
         if: ${{ matrix.on == 'windows-2019' }}
-        uses: microsoft/setup-msbuild@v2
+        uses: ilammy/msvc-dev-cmd@v1.12.1
         with:
-          vs-version: '[14.3,14.4)'
-          msbuild-architecture: x64
+          arch: x64
+          toolset: 14.3
+          
+      # - name: Add msbuild to PATH
+      #   if: ${{ matrix.on == 'windows-2019' }}
+      #   uses: microsoft/setup-msbuild@v2
+      #   with:
+      #     vs-version: '[14.3,14.4)'
+      #     msbuild-architecture: x64
 
       - uses: Jimver/cuda-toolkit@v0.2.16
         if: ${{ matrix.on != 'windows-2019' }}
